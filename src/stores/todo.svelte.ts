@@ -126,17 +126,17 @@ export function createTodoStore() {
     filter = newFilter;
   }
 
-  // すべてのTODOの完了状態を切り替え
+  // すべてのTODOの完了状態を切り替え(表示中のものに限る)
   function toggleAll() {
-    const allCompleted = todos.length > 0 && todos.every(todo => todo.completed);
+    const allCompleted = filteredTodos.length > 0 && filteredTodos.every(todo => todo.completed);
     /* todos = todos.map(todo => ({
       ...todo,
       completed: !allCompleted,
       updatedAt: new Date()
     })); */
     let updated = false;
-    for(let i = todos.length; i;){
-        const todo = todos[--i];
+    for(let i = filteredTodos.length; i;){
+        const todo = filteredTodos[--i];
         if(todo.completed === allCompleted){
           todo.completed = !allCompleted;
           todo.updatedAt = new Date();
