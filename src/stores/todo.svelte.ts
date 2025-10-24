@@ -1,44 +1,22 @@
 // Svelte 5 Runesを使用したTODOストア
 import type { Todo, FilterType } from '../types/todo';
+import {save as saveToLocalStorage, load as loadFromLocalStorage} from './localStorage';
 
 /**
  * TODOアプリケーションのグローバルストア
  * Svelte 5のRunesシステムを使用した状態管理
  */
 export function createTodoStore() {
-  // LocalStorageから初期データを読み込み
-  const loadFromStorage = (): Todo[] => {
-    if (typeof window === 'undefined') return [];
-    
-    const stored = localStorage.getItem('svelte5-todos');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        // Date型の復元
-        return parsed.map((todo: any) => ({
-          ...todo,
-          createdAt: new Date(todo.createdAt),
-          updatedAt: todo.updatedAt ? new Date(todo.updatedAt) : undefined
-        }));
-      } catch (e) {
-        console.error('Failed to parse todos from localStorage:', e);
-      }
-    }
-    return [];
-  };
-
-  // LocalStorageへの保存
-  const saveToStorage = (todos: Todo[]) => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('svelte5-todos', JSON.stringify(todos));
-  };
-
   // リアクティブな状態の定義（初期値はLocalStorageから）
-  let todos = $state<Todo[]>(loadFromStorage());
+  const todos = $state<Todo[]>([]);
+
+  // LocalStorageから初期データを読み込み
+  loadFromLocalStorage(todos);
+
   let filter = $state<FilterType>('all');
 
   // 派生値の定義
-  let filteredTodos = $derived.by(() => {
+  const filteredTodos = $derived.by(() => {
     switch (filter) {
       case 'active':
         return todos.filter(todo => !todo.completed);
@@ -49,11 +27,11 @@ export function createTodoStore() {
     }
   });
 
-  let activeTodoCount = $derived(
+  const activeTodoCount = $derived(
     todos.filter(todo => !todo.completed).length
   );
 
-  let completedTodoCount = $derived(
+  const completedTodoCount = $derived(
     todos.filter(todo => todo.completed).length
   );
 
@@ -69,46 +47,78 @@ export function createTodoStore() {
       createdAt: new Date()
     };
 
-    todos = [...todos, newTodo];
-    saveToStorage(todos);
+    todos.push(newTodo);
+    saveToLocalStorage(todos);
   }
 
   // TODOの完了状態を切り替え
   function toggleTodo(id: string) {
-    todos = todos.map(todo =>
+    /* todos = todos.map(todo =>
       todo.id === id
         ? { ...todo, completed: !todo.completed, updatedAt: new Date() }
         : todo
-    );
-    saveToStorage(todos);
+    ); */
+    for(let i=0, l= todos.length; i<l; ++i){
+      const todo = todos[i];
+      if (todo.id === id){
+        todo.completed = !todo.completed;
+        todo.updatedAt = new Date();
+        saveToLocalStorage(todos);
+        break;
+      };
+    };
   }
 
   // TODOの削除
   function deleteTodo(id: string) {
-    todos = todos.filter(todo => todo.id !== id);
-    saveToStorage(todos);
+    // todos = todos.filter(todo => todo.id !== id);
+    for(let i=0, l= todos.length; i<l; ++i){
+      if (todos[i].id === id){
+        todos.splice(i, 1);
+        saveToLocalStorage(todos);
+        break;
+      };
+    };
   }
 
   // TODOのテキストを編集
   function editTodo(id: string, text: string) {
     const trimmedText = text.trim();
+
     if (!trimmedText) {
       deleteTodo(id);
       return;
     }
-
-    todos = todos.map(todo =>
+    for(let i=0, l= todos.length; i<l; ++i){
+      const todo = todos[i];
+      if (todo.id === id){
+        todo.text = trimmedText;
+        todo.updatedAt = new Date();
+        saveToLocalStorage(todos);
+        break;
+      };
+    };
+    /* todos = todos.map(todo =>
       todo.id === id
         ? { ...todo, text: trimmedText, updatedAt: new Date() }
         : todo
-    );
-    saveToStorage(todos);
+    ); */
   }
 
   // 完了済みのTODOをすべて削除
   function clearCompleted() {
-    todos = todos.filter(todo => !todo.completed);
-    saveToStorage(todos);
+    // todos = todos.filter(todo => !todo.completed);
+    let deleted = false;
+
+    for(let i = todos.length; i;){
+      if (todos[--i].completed){
+        todos.splice(i, 1);
+        deleted = true;
+      };
+    };
+    if (deleted) {
+      saveToLocalStorage(todos);
+    };
   }
 
   // フィルターの設定
@@ -119,12 +129,23 @@ export function createTodoStore() {
   // すべてのTODOの完了状態を切り替え
   function toggleAll() {
     const allCompleted = todos.length > 0 && todos.every(todo => todo.completed);
-    todos = todos.map(todo => ({
+    /* todos = todos.map(todo => ({
       ...todo,
       completed: !allCompleted,
       updatedAt: new Date()
-    }));
-    saveToStorage(todos);
+    })); */
+    let updated = false;
+    for(let i = todos.length; i;){
+        const todo = todos[--i];
+        if(todo.completed === allCompleted){
+          todo.completed = !allCompleted;
+          todo.updatedAt = new Date();
+          updated = true;
+        };
+    };
+    if (updated) {
+      saveToLocalStorage(todos);
+    };
   }
 
   return {
