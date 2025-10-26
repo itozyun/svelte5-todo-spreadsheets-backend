@@ -1,20 +1,20 @@
 <script lang="ts">
   // Props定義
   interface Props {
-    onAddTodo: (text: string) => void;
+    onAddTodo: (label: string) => void;
   }
 
   let { onAddTodo }: Props = $props();
 
   // 入力フィールドの状態
-  let newTodoText = $state('');
+  let newTodoLabel = $state('');
 
   // TODOの追加処理
   function handleSubmit(e: Event) {
     e.preventDefault();
-    if (newTodoText.trim()) {
-      onAddTodo(newTodoText);
-      newTodoText = '';
+    if (newTodoLabel.trim()) {
+      onAddTodo(newTodoLabel);
+      newTodoLabel = '';
     }
   }
 
@@ -55,7 +55,7 @@
     <input
       class="new-todo"
       placeholder="What needs to be done?"
-      bind:value={newTodoText}
+      bind:value={newTodoLabel}
       autofocus
     />
     <button type="submit" class="add-button">Add task</button>

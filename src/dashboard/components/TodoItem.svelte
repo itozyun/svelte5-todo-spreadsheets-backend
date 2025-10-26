@@ -6,24 +6,24 @@
     todo: Todo;
     onToggle: (id: string) => void;
     onDelete: (id: string) => void;
-    onEdit: (id: string, text: string) => void;
+    onEdit: (id: string, label: string) => void;
   }
 
   let { todo, onToggle, onDelete, onEdit }: Props = $props();
 
   // 編集モードの状態管理
   let isEditing = $state(false);
-  let editText = $state(todo.text);
+  let editText = $state(todo.label);
 
   // 編集開始
   function startEdit() {
     isEditing = true;
-    editText = todo.text;
+    editText = todo.label;
   }
 
   // 編集確定
   function confirmEdit() {
-    if (editText.trim() !== todo.text) {
+    if (editText.trim() !== todo.label) {
       onEdit(todo.id, editText);
     }
     isEditing = false;
@@ -31,7 +31,7 @@
 
   // 編集キャンセル
   function cancelEdit() {
-    editText = todo.text;
+    editText = todo.label;
     isEditing = false;
   }
 
@@ -71,8 +71,8 @@
           <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
         </svg>
       </label>
-      <span class="todo-text" ondblclick={startEdit}>
-        {todo.text}
+      <span class="todo-label" ondblclick={startEdit}>
+        {todo.label}
       </span>
       <button class="destroy" onclick={() => onDelete(todo.id)} aria-label="Delete task">
         <svg viewBox="0 0 16 16" width="16" height="16">
@@ -177,7 +177,7 @@
     display: block;
   }
 
-  .todo-text {
+  .todo-label {
     flex: 1;
     font-size: 14px;
     line-height: 1.5;
@@ -187,17 +187,17 @@
     user-select: text;
   }
 
-  :global(body.dark) .todo-text {
+  :global(body.dark) .todo-label {
     color: #c9d1d9;
   }
 
-  .completed .todo-text {
+  .completed .todo-label {
     color: #6e7781;
     text-decoration: line-through;
     opacity: 0.7;
   }
 
-  :global(body.dark) .completed .todo-text {
+  :global(body.dark) .completed .todo-label {
     color: #8b949e;
   }
 

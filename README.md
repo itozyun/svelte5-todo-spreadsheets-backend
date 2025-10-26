@@ -152,7 +152,7 @@ export function createTodoStore() {
 // types/todo.ts
 export interface Todo {
   id: string;
-  text: string;
+  label: string;
   completed: boolean;
   createdAt: Date;
   updatedAt?: Date;
@@ -169,7 +169,7 @@ interface Props {
   todo: Todo;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
-  onEdit: (id: string, text: string) => void;
+  onEdit: (id: string, label: string) => void;
 }
 
 let { todo, onToggle, onDelete, onEdit }: Props = $props();

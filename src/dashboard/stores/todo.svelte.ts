@@ -36,13 +36,13 @@ export function createTodoStore() {
   );
 
   // TODOの追加
-  function addTodo(text: string) {
-    const trimmedText = text.trim();
+  function addTodo(label: string) {
+    const trimmedText = label.trim();
     if (!trimmedText) return;
 
     const newTodo: Todo = {
       id: crypto.randomUUID(),
-      text: trimmedText,
+      label: trimmedText,
       completed: false,
       createdAt: new Date()
     };
@@ -82,8 +82,8 @@ export function createTodoStore() {
   }
 
   // TODOのテキストを編集
-  function editTodo(id: string, text: string) {
-    const trimmedText = text.trim();
+  function editTodo(id: string, label: string) {
+    const trimmedText = label.trim();
 
     if (!trimmedText) {
       deleteTodo(id);
@@ -92,7 +92,7 @@ export function createTodoStore() {
     for(let i=0, l= todos.length; i<l; ++i){
       const todo = todos[i];
       if (todo.id === id){
-        todo.text = trimmedText;
+        todo.label = trimmedText;
         todo.updatedAt = new Date();
         saveToLocalStorage(todos);
         break;
@@ -100,7 +100,7 @@ export function createTodoStore() {
     };
     /* todos = todos.map(todo =>
       todo.id === id
-        ? { ...todo, text: trimmedText, updatedAt: new Date() }
+        ? { ...todo, label: trimmedText, updatedAt: new Date() }
         : todo
     ); */
   }
