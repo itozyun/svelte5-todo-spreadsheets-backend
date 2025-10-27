@@ -53,8 +53,8 @@
 
 <div class="info">
   <p>Double-click to edit a todo</p>
-  <p>Built with <a href="https://svelte.dev">Svelte 5</a> and TypeScript</p>
-  <p>Part of <a href="https://github.com/shuji-bonji/Svelte-and-SvelteKit-with-TypeScript">Svelte & SvelteKit with TypeScript Guide</a></p>
+  <p>Built with <a href="https://svelte.dev" target="_blank">Svelte 5</a>(TypeScript) and Google Spreadsheets(Google Apps Script)</p>
+  <p>Repository <a href="https://github.com/itozyun/svelte5-todo-spreadsheets-backend" target="_blank">github</a></p>
 </div>
 
 <style>

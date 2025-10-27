@@ -3,9 +3,9 @@
 アプリケーション画面は、Google Apps Script (GAS) の HTML Service という機能を使っています。(Google アカウントがあれば無料で SPA が作れます)
 
 ~~~bash
-# 画面(Svelte 5)のビルド dist/ に書き出されます
-npm run build
-# データベース用の gas(backend.js) と HTML Service 用の dashboard.html の作成
+# 画面(Svelte 5)のプレビルド dist/ に書き出されます
+npm run prebuild
+# データベース用の GAS(backend.js) と HTML Service 用の dashboard.html の作成
 # --ssid= にはスプレッドシートの ID を設定する
 gulp --pretty --ssid=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 # Google Apps Script にアップロードする
@@ -15,6 +15,7 @@ clasp deploy
 ~~~
 
 1. [GAS Web app をClaspからデプロイ](https://qiita.com/ume3003/items/cd9d05dff014952a73f8)
+2. [GoogleAppsScript(GAS)を固定URLでデプロイする方法](https://codeaid.jp/gas-deploy/) Web アプリの URL を固定してアップデート(デプロイ)する方法、なお、古いバージョンの削除は出来なくなっているので注意！
 
 # Svelte 5 TODO アプリケーション - Runesシステム学習用
 

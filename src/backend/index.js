@@ -21,13 +21,13 @@ __do_post__ = function( e ){
     } catch( O_o ) {
         return ContentService.createTextOutput( JSON.stringify( { 'errorCode' : TodoDBError.FAIL_TO_PARSE_JSON, 'time' : Date.now() - start } ) ).setMimeType( ContentService.MimeType.JSON );
     };
-    return ContentService.createTextOutput( accessToDB( start, parameter[ 'action' ], parameter, false ) ).setMimeType( ContentService.MimeType.JSON );
+    return ContentService.createTextOutput( JSON.stringify( accessToDB( start, parameter[ 'action' ], parameter, false ) ) ).setMimeType( ContentService.MimeType.JSON );
 };
 
 /**
  * @param {number} action 
  * @param {!Object|null=} opt_parameter 
- * @return {string | number} JSON String
+ * @return {!Object} JSON
  */
 __admin__ = function( action, opt_parameter ){
     function createJSONOutput( json ){
@@ -50,7 +50,7 @@ __admin__ = function( action, opt_parameter ){
                     totalRecords += db.getTotalRecords( db.getSheetName( sheetIndex ) );
                 };
                 lock.releaseLock(); // release lock
-                return totalRecords;
+                return createJSONOutput( { 'totalRecords' : totalRecords } );
             };
             return createJSONOutput( { 'errorCode' : TodoDBError.BUSY } );
         case Actions.totalCells :
@@ -62,7 +62,7 @@ __admin__ = function( action, opt_parameter ){
                     totalCells += db.getTotalCells( db.getSheetName( sheetIndex ) );
                 };
                 lock.releaseLock(); // release lock
-                return totalCells;
+                return createJSONOutput( { 'totalCells' : totalCells } );
             };
             return createJSONOutput( { 'errorCode' : TodoDBError.BUSY } );
     };
@@ -77,8 +77,8 @@ __admin__ = function( action, opt_parameter ){
  * @param {number} start 
  * @param {number} action 
  * @param {!Object} parameter 
- * @param {boolean} isAdmin admin の場合は undefined
- * @return {string} JSON String */
+ * @param {boolean} isAdmin
+ * @return {!Object} JSON */
 function accessToDB( start, action, parameter, isAdmin ){
     function createJSONOutput( json ){
         json[ 'action' ] = action;

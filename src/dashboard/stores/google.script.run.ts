@@ -16,16 +16,15 @@ export type Response = {
     time: number,
     errorCode?: number,
     records?: any[],
-    record?: any,
     inserted?: any,
     updated?: boolean,
     deleted? : boolean
 };
 
 export function run(
-        callback: (error:number, result?:Response) => void,
         action  : number,
-        param?  : Parameter
+        param   : Parameter | null,
+        callback: (error:number, result?:Response) => void
 ) {
     google.script.run.withSuccessHandler(
         (result: Response) => {
@@ -51,6 +50,8 @@ export function serial(
     const resultList = opt_resultList || [];
 
     run(
+        // @ts-ignore
+        request.action, request.param,
         (errorCode, result) => {
             if (errorCode) {
                 callback(errorCode);
@@ -62,8 +63,6 @@ export function serial(
                     callback(0, resultList);
                 };
             };
-        },
-        // @ts-ignore
-        request.action, request.param
+        }
     );
 };

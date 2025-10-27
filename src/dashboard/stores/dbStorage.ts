@@ -31,39 +31,34 @@ function _dateToNumberOne(todo: Todo){
 
 function load(todos: Todo[]) {
   run(
+    Actions.get,
+    null,
     function(error: number, result?: Response) {
         if (error) {
           // TODO BUSY
         } else {
-          console.log(result)
+          // console.log(result)
           const records = _strToDate((result as Response).records as any[]);
           todos.push.apply(todos, records as Todo[]);
         };
-    },
-    Actions.get
+    }
   );
 };
 
 function insert(todos: Todo[], newTodo: Todo) {
-  todos.push(newTodo);
   run(
-    function(error, result) {
-        const index = todos.indexOf(newTodo);
-        if (error) {
-          if (0 <= index) {
-            todos.splice(index, 1);
-            // error
-          };
-        } else {
-          todos.splice(index, 1, _strToDateOne((result as Response).inserted as any));
-        };
-    },
     Actions.insert,
     // @ts-ignore
-    {sheetIndex: 0, record: newTodo}
+    {sheetIndex: 0, record: newTodo},
+    function(error: number, result?: Response) {
+        if (error) {
+          
+        } else {
+          todos.push(_strToDateOne((result as Response).inserted as any));
+        };
+    }
   );
 };
-
 
 function update(todos: Todo[], targetTodoOrTodos: Todo | Todo[], diff: TodoDiff) {
   if(Array.isArray(targetTodoOrTodos)){
@@ -72,8 +67,10 @@ function update(todos: Todo[], targetTodoOrTodos: Todo | Todo[], diff: TodoDiff)
       query += ',id=' + targetTodoOrTodos[i].id;
     };
     run(
-      function(error, result) {
-        console.log(error, result)
+      Actions.update,
+      // @ts-ignore
+      {sheetIndex: 0, query: query.substr(1), diff},
+      function(error: number, result?: Response) {
           if (error || !result?.updated) {
 
           } else {
@@ -82,23 +79,20 @@ function update(todos: Todo[], targetTodoOrTodos: Todo | Todo[], diff: TodoDiff)
               todos.splice(todos.indexOf(todo), 1, {...todo, ...diff});
             };
           };
-      },
-      Actions.update,
-      // @ts-ignore
-      {sheetIndex: 0, query: query.substr(1), diff}
+      }
     );
   } else {
     run(
-      function(error, result) {
+      Actions.update,
+      // @ts-ignore
+      {sheetIndex: 0, record: {...diff, id:targetTodoOrTodos.id}},
+      function(error: number, result?: Response) {
           if (error || !result?.updated) {
 
           } else {
             todos.splice(todos.indexOf(targetTodoOrTodos), 1, {...targetTodoOrTodos, ...diff});
           };
-      },
-      Actions.update,
-      // @ts-ignore
-      {sheetIndex: 0, record: {...diff, id:targetTodoOrTodos.id}}
+      }
     );
   };
 };
@@ -110,33 +104,32 @@ function remove(todos: Todo[], targetTodoOrTodos: Todo | Todo[]) {
       query += ',id=' + targetTodoOrTodos[i].id;
     };
     run(
-      function(error, result) {
+      Actions.delete,
+      // @ts-ignore
+      {sheetIndex: 0, query: query.substr(1)},
+      function(error: number, result?: Response) {
           if (error || !result?.deleted) {
 
           } else {
             for (let i = targetTodoOrTodos.length; i;) {
-              const index = todos.indexOf(targetTodoOrTodos[--i]);
-              todos.splice(index, 1);
+              todos.splice(todos.indexOf(targetTodoOrTodos[--i]), 1);
             };
           };
-      },
-      Actions.delete,
-      // @ts-ignore
-      {sheetIndex: 0, query: query.substr(1)}
+      }
     );
   } else {
     run(
-      function(error, result) {
+      Actions.delete,
+      // @ts-ignore
+      {sheetIndex: 0, record: _dateToNumberOne(targetTodoOrTodos)},
+      function(error: number, result?: Response) {
           if (error || !result?.deleted) {
 
           } else {
             const index = todos.indexOf(targetTodoOrTodos as Todo);
             todos.splice(index, 1);
           };
-      },
-      Actions.delete,
-      // @ts-ignore
-      {sheetIndex: 0, record: _dateToNumberOne(targetTodoOrTodos)}
+      }
     );
   };
 };

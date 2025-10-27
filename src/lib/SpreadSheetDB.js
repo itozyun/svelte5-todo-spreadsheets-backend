@@ -483,7 +483,7 @@ import SpreadSheetDBError from './SpreadSheetDBError.js';
  *  Private
  *
  --------------------------------------------------------------------------- */
- /** @private @const */
+/** @private @const */
 SpreadSheetDB.DEFAULT_INDEX_KEY = '_myRowIndex';
 /** @private @const */
 SpreadSheetDB.PREFIX = '-';
@@ -1375,14 +1375,14 @@ SpreadSheetDB.prototype._getRecordsOrIndexes = function( sheetName, query, onlyI
                             let value = values[ j ];
                             switch( columnDefinition.dataType ){
                                 case SpreadSheetDB.DataType.INDEX :
-                                    if( !myRowIndexRequired ){
+                                    if( !myRowIndexRequired && key !== SpreadSheetDB.DEFAULT_INDEX_KEY ){
                                         continue;
                                     };
                                 case SpreadSheetDB.DataType.NUMBER :
                                     value = Number( value ) || 0;
                                     break;
                                 case SpreadSheetDB.DataType.BOOLEAN :
-                                    value = !!value;
+                                    value = !!Number( value );
                                     break;
                                 case SpreadSheetDB.DataType.STRING :
                                 case SpreadSheetDB.DataType.UNIQUE_HASH :

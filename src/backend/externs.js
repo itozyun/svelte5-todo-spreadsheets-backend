@@ -75,49 +75,24 @@ var ContentService = {
 // https://developers.google.com/apps-script/guides/web?hl=ja
 
 /**
- * @type {!function(!GoogleAppsScriptWebAppRequestEvent):*|undefined}
+ * @type {!function(!GoogleAppsScriptWebAppRequestEvent)}
  */
 var __do_get__;
 
 /**
- * @type {!function(!GoogleAppsScriptWebAppRequestEvent):*|undefined}
+ * @type {!function(!GoogleAppsScriptWebAppRequestEvent)}
  */
 var __do_post__;
 
 /**
- * @type {!function(*=):*|undefined}
+ * @type {!function(*=)}
  */
 var __do_schedule__;
 
 /**
- * @type {!function(number,Object):(string|number)|undefined}
+ * @type {!function(number,Object)}
  */
 var __admin__;
-
-/**
- * @type {!function()|undefined}
- */
-var __test1__;
-/**
- * @type {!function()|undefined}
- */
-var __test2__;
-/**
- * @type {!function()|undefined}
- */
-var __test3__;
-/**
- * @type {!function()|undefined}
- */
-var __test4__;
-/**
- * @type {!function()|undefined}
- */
-var __test5__;
-/**
- * @type {!function()|undefined}
- */
-var __test6__;
 
 var Logger = {
     /**
