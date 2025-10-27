@@ -1,11 +1,17 @@
 // TODOアイテムの型定義
 export interface Todo {
-  id: string;
+  id?: string;
   label: string;
   completed: boolean;
-  createdAt: Date;
+  createdAt?: Date;
   updatedAt?: Date;
 }
+
+export type TodoDiff = {
+  label: string;
+} | {
+  completed: boolean;
+};
 
 // フィルター種別の型
 export type FilterType = 'all' | 'active' | 'completed';

@@ -1,17 +1,20 @@
 // Svelte 5 Runesを使用したTODOストア
 import type { Todo, FilterType } from '../types/todo';
-import {save as saveToLocalStorage, load as loadFromLocalStorage} from './localStorage';
+import localStorage from './localStorage';
+import dbStorage from './dbStorage';
 
 /**
  * TODOアプリケーションのグローバルストア
  * Svelte 5のRunesシステムを使用した状態管理
  */
 export function createTodoStore() {
+  const storage = import.meta.env.DEV ? localStorage : dbStorage;
+
   // リアクティブな状態の定義（初期値はLocalStorageから）
   const todos = $state<Todo[]>([]);
 
   // LocalStorageから初期データを読み込み
-  loadFromLocalStorage(todos);
+  storage.load(todos);
 
   let filter = $state<FilterType>('all');
 
@@ -38,32 +41,21 @@ export function createTodoStore() {
   // TODOの追加
   function addTodo(label: string) {
     const trimmedText = label.trim();
-    if (!trimmedText) return;
 
-    const newTodo: Todo = {
-      id: crypto.randomUUID(),
-      label: trimmedText,
-      completed: false,
-      createdAt: new Date()
+    if (trimmedText) {
+      storage.insert(todos, {
+        label    : trimmedText,
+        completed: false
+      });
     };
-
-    todos.push(newTodo);
-    saveToLocalStorage(todos);
   }
 
   // TODOの完了状態を切り替え
   function toggleTodo(id: string) {
-    /* todos = todos.map(todo =>
-      todo.id === id
-        ? { ...todo, completed: !todo.completed, updatedAt: new Date() }
-        : todo
-    ); */
-    for(let i=0, l= todos.length; i<l; ++i){
+    for (let i=0, l=todos.length; i<l; ++i) {
       const todo = todos[i];
-      if (todo.id === id){
-        todo.completed = !todo.completed;
-        todo.updatedAt = new Date();
-        saveToLocalStorage(todos);
+      if (todo.id === id) {
+        storage.update(todos, todo, {completed: !todo.completed});
         break;
       };
     };
@@ -71,11 +63,10 @@ export function createTodoStore() {
 
   // TODOの削除
   function deleteTodo(id: string) {
-    // todos = todos.filter(todo => todo.id !== id);
-    for(let i=0, l= todos.length; i<l; ++i){
-      if (todos[i].id === id){
-        todos.splice(i, 1);
-        saveToLocalStorage(todos);
+    for (let i=0, l=todos.length; i<l; ++i) {
+      const todo = todos[i];
+      if (todo.id === id) {
+        storage.remove(todos, todo);
         break;
       };
     };
@@ -87,38 +78,28 @@ export function createTodoStore() {
 
     if (!trimmedText) {
       deleteTodo(id);
-      return;
-    }
-    for(let i=0, l= todos.length; i<l; ++i){
-      const todo = todos[i];
-      if (todo.id === id){
-        todo.label = trimmedText;
-        todo.updatedAt = new Date();
-        saveToLocalStorage(todos);
-        break;
+    } else {
+      for (let i=0, l=todos.length; i<l; ++i) {
+        const todo = todos[i];
+        if (todo.id === id) {
+          storage.update(todos, todo, {label: trimmedText});
+          break;
+        };
       };
     };
-    /* todos = todos.map(todo =>
-      todo.id === id
-        ? { ...todo, label: trimmedText, updatedAt: new Date() }
-        : todo
-    ); */
   }
 
   // 完了済みのTODOをすべて削除
   function clearCompleted() {
-    // todos = todos.filter(todo => !todo.completed);
-    let deleted = false;
+    const deleteTodos = [];
 
-    for(let i = todos.length; i;){
-      if (todos[--i].completed){
-        todos.splice(i, 1);
-        deleted = true;
+    for (let i = todos.length; i;) {
+      const todo = todos[--i];
+      if (todo.completed) {
+        deleteTodos.push(todo);
       };
     };
-    if (deleted) {
-      saveToLocalStorage(todos);
-    };
+    storage.remove(todos, deleteTodos);
   }
 
   // フィルターの設定
@@ -129,22 +110,16 @@ export function createTodoStore() {
   // すべてのTODOの完了状態を切り替え(表示中のものに限る)
   function toggleAll() {
     const allCompleted = filteredTodos.length > 0 && filteredTodos.every(todo => todo.completed);
-    /* todos = todos.map(todo => ({
-      ...todo,
-      completed: !allCompleted,
-      updatedAt: new Date()
-    })); */
-    let updated = false;
-    for(let i = filteredTodos.length; i;){
+    const updateTodos = [];
+
+    for (let i = filteredTodos.length; i;) {
         const todo = filteredTodos[--i];
-        if(todo.completed === allCompleted){
-          todo.completed = !allCompleted;
-          todo.updatedAt = new Date();
-          updated = true;
+        if (todo.completed === allCompleted) {
+          updateTodos.push(todo);
         };
     };
-    if (updated) {
-      saveToLocalStorage(todos);
+    if (updateTodos.length) {
+      storage.update(todos, updateTodos, {completed: !allCompleted});
     };
   }
 

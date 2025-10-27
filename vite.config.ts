@@ -4,5 +4,6 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [svelte()],
-  base: '/svelte5-todo-example/'
+  base: '/svelte5-todo-example/',
+  build: {target: 'es2016'}
 })

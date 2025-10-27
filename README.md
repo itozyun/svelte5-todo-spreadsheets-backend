@@ -1,3 +1,21 @@
+# Google Spreadsheets をデータベースにする Svelte5 TODO アプリケーション
+
+アプリケーション画面は、Google Apps Script (GAS) の HTML Service という機能を使っています。(Google アカウントがあれば無料で SPA が作れます)
+
+~~~bash
+# 画面(Svelte 5)のビルド dist/ に書き出されます
+npm run build
+# データベース用の gas(backend.js) と HTML Service 用の dashboard.html の作成
+# --ssid= にはスプレッドシートの ID を設定する
+gulp --pretty --ssid=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# Google Apps Script にアップロードする
+clasp push
+# Web アプリとしてデプロイ(公開)する
+clasp deploy
+~~~
+
+1. [GAS Web app をClaspからデプロイ](https://qiita.com/ume3003/items/cd9d05dff014952a73f8)
+
 # Svelte 5 TODO アプリケーション - Runesシステム学習用
 
 Svelte 5のRunesシステムとTypeScriptを使用した、フル機能のTODOアプリケーションです。
