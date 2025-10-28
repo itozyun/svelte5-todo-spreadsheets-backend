@@ -101,7 +101,7 @@ function accessToDB( start, action, parameter, isAdmin ){
                     var rcords = db.get( sheetName, query || '', isAdmin, parameter[ 'startIndex' ] || 0, parameter[ 'maxRecords' ] || Infinity );
                 } catch( O_o ) {
                     lock.releaseLock(); // release lock
-                    return createJSONOutput( { 'errorCode' : /** @type {SpreadSheetDBError} */ (O_o).code } );
+                    return createJSONOutput( { 'errorCode' : /** @type {SpreadSheetDBError} */ (O_o).code || /** @type {SpreadSheetDBError} */ (O_o).message } );
                 };
                 lock.releaseLock(); // release lock
                 return createJSONOutput( { 'records' : rcords } );
@@ -110,7 +110,7 @@ function accessToDB( start, action, parameter, isAdmin ){
                     var newRecords = db.insert( sheetName, record, isAdmin );
                 } catch( O_o ) {
                     lock.releaseLock();
-                    return createJSONOutput( { 'errorCode' : /** @type {SpreadSheetDBError} */ (O_o).message } );
+                    return createJSONOutput( { 'errorCode' : /** @type {SpreadSheetDBError} */ (O_o).code || /** @type {SpreadSheetDBError} */ (O_o).message } );
                 };
                 lock.releaseLock();
                 return createJSONOutput( { 'inserted' : newRecords } );
@@ -119,7 +119,7 @@ function accessToDB( start, action, parameter, isAdmin ){
                     var bool = db.update( sheetName, query || record, diff, true );
                 } catch( O_o ) {
                     lock.releaseLock();
-                    return createJSONOutput( { 'errorCode' : /** @type {SpreadSheetDBError} */ (O_o).code } );
+                    return createJSONOutput( { 'errorCode' : /** @type {SpreadSheetDBError} */ (O_o).code || /** @type {SpreadSheetDBError} */ (O_o).message } );
                 };
                 lock.releaseLock();
                 return createJSONOutput( { 'updated' : bool } );
@@ -128,7 +128,7 @@ function accessToDB( start, action, parameter, isAdmin ){
                     var bool = db.delete( sheetName, query || record, true );
                 } catch( O_o ) {
                     lock.releaseLock();
-                    return createJSONOutput( { 'errorCode' : /** @type {SpreadSheetDBError} */ (O_o).code } );
+                    return createJSONOutput( { 'errorCode' : /** @type {SpreadSheetDBError} */ (O_o).code || /** @type {SpreadSheetDBError} */ (O_o).message } );
                 };
                 lock.releaseLock();
                 return createJSONOutput( { 'deleted' : bool } );

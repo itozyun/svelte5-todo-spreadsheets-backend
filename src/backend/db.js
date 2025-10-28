@@ -8,8 +8,7 @@ const db = new SpreadSheetDB(
     [
         {
             sheetName : SheetNames.Todos,
-            sortKey   : 'created',
-            ascending : true,
+            sortKey   : 'createdAt',
             columns   : [
                 {
                     key      : 'id',
@@ -22,9 +21,10 @@ const db = new SpreadSheetDB(
                     dataType : SpreadSheetDB.DataType.STRING
                 },
                 {
-                    key      : 'completed',
-                    label    : '✓',
-                    dataType : SpreadSheetDB.DataType.BOOLEAN
+                    key          : 'completed',
+                    label        : '✓',
+                    dataType     : SpreadSheetDB.DataType.BOOLEAN,
+                    defaultValue : false,
                 },
                 {
                     key      : 'createdAt',
@@ -40,12 +40,11 @@ const db = new SpreadSheetDB(
         },
         {
             sheetName : SheetNames.EventLog,
-            sortKey   : 'created',
             delete    : false,
             update    : false,
             columns   : [
                 {
-                    key      : 'created',
+                    key      : 'createdAt',
                     label    : '作成日時',
                     dataType : SpreadSheetDB.DataType.INSERTED_AT
                 },
@@ -74,22 +73,28 @@ db.listen(
     SheetNames.Todos,
     SpreadSheetDB.ActionType.DELETE,
     function( event ){
-        if( event.records ){
-            for( let i = 0, l = event.records.length; i < l; ++i ){
-                log( event.records[ i ] ); // TODO use .insert(records)
+        function toLogRecord( record ){
+            return {
+                'event_type'  : 1,
+                'description' : record[ 'label' ] + ' の削除',
+                'json'        : record
             };
-        } else if( event.record ){
-            log( event.record );
         };
 
-        function log( record ){
+        if( event.records ){
+            const logRecords = [];
+            for( let i = 0, l = event.records.length; i < l; ++i ){
+                logRecords.push( toLogRecord( event.records[ i ] ) );
+            };
             db.insert(
                 SheetNames.EventLog,
-                {
-                    'event_type'  : 1,
-                    'description' : record[ 'label' ] + ' の削除',
-                    'json'        : JSON.stringify( record )
-                },
+                logRecords,
+                true
+            );
+        } else if( event.record ){
+            db.insert(
+                SheetNames.EventLog,
+                toLogRecord( event.record ),
                 true
             );
         };

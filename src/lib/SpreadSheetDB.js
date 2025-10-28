@@ -121,6 +121,7 @@ import SpreadSheetDBError from './SpreadSheetDBError.js';
                 // 重複する sheetName のチェック
             /* for( let j = 1, m = columnDefinitions.length; i < l; ++i ){
                 // 重複する key のチェック, 不正なデータ型のチェック
+                // sortKey の存在確認
             }; */
             // };
         };
@@ -431,11 +432,11 @@ import SpreadSheetDBError from './SpreadSheetDBError.js';
      * @return {boolean} 削除した場合は true, リスナが非存在の場合は false */
     SpreadSheetDB.prototype.unlisten = function( sheetName, actionType, callback, opt_thisContext ){
         const prefixedSheetName = SpreadSheetDB.PREFIX + sheetName;
+        const listeners = this._listeners[ prefixedSheetName ];
 
-        if( !this._listeners[ prefixedSheetName ] ){
+        if( !listeners ){
             return false;
         };
-        const listeners = this._listeners[ prefixedSheetName ];
 
         for( let i = 0, l = listeners.length; i < l; ++i ){
             const listener = listeners[ i ];
@@ -460,11 +461,11 @@ import SpreadSheetDBError from './SpreadSheetDBError.js';
      * @return {boolean} リスナが存在する場合は true, 非存在の場合は false */
     SpreadSheetDB.prototype.listening = function( sheetName, actionType, callback, opt_thisContext ){
         const prefixedSheetName = SpreadSheetDB.PREFIX + sheetName;
+        const listeners = this._listeners[ prefixedSheetName ];
 
-        if( !this._listeners[ prefixedSheetName ] ){
+        if( !listeners ){
             return false;
         };
-        const listeners = this._listeners[ prefixedSheetName ];
 
         for( let i = 0, l = listeners.length; i < l; ++i ){
             const listener = listeners[ i ];
@@ -1257,7 +1258,7 @@ SpreadSheetDB.prototype._objectToValueArray = function( sheetName, actionType, n
                 );
                 break;
             case SpreadSheetDB.DataType.BOOLEAN :
-                newValue = getValue( columnDefinition, function( v ){ return v === !!v; }, newValue, oldValue, columnDefinition.defaultValue )
+                newValue = getValue( columnDefinition, function( v ){ return v === !!v; }, newValue, !!oldValue, columnDefinition.defaultValue )
                              ? 1 : 0;
                 newRecordValue = !!newValue;
                 break;
@@ -1444,11 +1445,16 @@ SpreadSheetDB.prototype._sortSheet = function( sheetName ){
     const sheetDefinition = this._getSheetDefinition( sheetName );
 
     if( sheetDefinition.sortKey && 1 < this.getTotalRecords( sheetName ) ){
-        this._getSheet( sheetName )
-            .getDataRange()
+        const sheet = this._getSheet( sheetName );
+
+        // 後の処理で filter.remove() に到達しなかった場合、ここで filter を削除する
+        const filter = sheet.getFilter();
+        filter && filter.remove();
+
+        sheet.getDataRange()
                 .createFilter()
                     .sort( this._getColumnIndexFromKey( sheetName, sheetDefinition.sortKey ) + 1, !!sheetDefinition.ascending )
-                .remove();
+                    .remove(); // remove filter
     };
 };
 /**
@@ -1460,23 +1466,23 @@ SpreadSheetDB.prototype._sortSheet = function( sheetName ){
  * @param {!Records|!Record=} opt_record  */
 SpreadSheetDB.prototype._dispatch = function( sheetName, actionType, opt_record ){
     const prefixedSheetName = SpreadSheetDB.PREFIX + sheetName;
+    const listeners = this._listeners[ prefixedSheetName ];
 
-    if( this._listeners[ prefixedSheetName ] ){
-        const listeners = this._listeners[ prefixedSheetName ];
+    if( listeners ){
         const event = { sheetName : sheetName, actionType : actionType, db : this };
         if( Array.isArray( opt_record ) ){
             event.records = opt_record;
         } else if( opt_record ){
             event.record = opt_record;
         };
-        let i = 0, l = listeners.length;
+        const l = listeners.length;
 
         if( 0 < listeners._dispatchDepth ){
             ++listeners._dispatchDepth;
         } else {
             listeners._dispatchDepth = 1; // _dispatch 中に _dispatch が呼ばれた場合に対処
         };
-        for( ; i < l; ++i ){
+        for( let i = 0; i < l; ++i ){
             const listener = listeners[ i ];
             if( !listener._off && ( listener.actionType & actionType ) ){
                 if( listener.callback.call( listener.thisContext || this, event ) === true ){
@@ -1487,7 +1493,7 @@ SpreadSheetDB.prototype._dispatch = function( sheetName, actionType, opt_record 
         --listeners._dispatchDepth;
         if( listeners._dispatchDepth === 0 ){
             delete listeners._dispatchDepth;
-            for( i = l; i; ){
+            for( let i = l; i; ){
                 const listener = listeners[ --i ];
                 if( listener._off ){
                     listeners.splice( i, 1 );
