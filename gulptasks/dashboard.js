@@ -1,23 +1,28 @@
+import {config} from 'dotenv';
 import {src, dest, series} from 'gulp';
+import {exec} from 'child_process';
 import {gulp as ClosureCompiler} from 'google-closure-compiler';
 import PluginError from 'plugin-error';
 import {obj as through2} from 'through2';
 import Vinyl from 'vinyl';
 
-let isDebug = false;
-let isPrettify = false;
+config();
 
-for(var i = 2;i < process.argv.length; ++i){
-  if(process.argv[i] === '--debug'){
-    isDebug = true;
-  } else if(process.argv[i] === '--pretty'){
-    isPrettify = true;
-  };
-};
-
+const isDebug    = process.env.DEBUG  === 'true';
+const isPrettify = process.env.PRETTY === 'true';
 let js;
 
 export default series(
+    function(cb){
+        exec(
+            'npm run prebuild',
+            (err, stdout, stderr) => {
+                err && console.log(err);
+                console.log(stdout);
+                err || cb();
+            }
+        );
+    },
     function(cb){
         return src(
             ['./dist/assets/*.js']
@@ -59,9 +64,6 @@ export default series(
                     const content = file.contents.toString(encoding);
 
                     switch( file.extname ){
-                        case '.js' :
-                            js = content;
-                            break;
                         case '.css' :
                             css = content;
                             break;

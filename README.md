@@ -2,20 +2,24 @@
 
 アプリケーション画面は、Google Apps Script (GAS) の HTML Service という機能を使っています。(Google アカウントがあれば無料で SPA が作れます)
 
+画面を Svelte5 + TypeScript、データベースの GAS を Closure Script(Closure Compiler)で開発しています。両者で共用する値が src/common/*.js に配置されています。
+
+## ビルド
+
+.env.local を元に .env を作成します。`SPREADSHEETS_ID=` にはスプレッドシートの ID を書きます。
+
+`APPS_SCRIPT_DEPLOY_ID=` には `clasp deployments` で表示されたデプロイ ID を書きます。
+
 ~~~bash
-# 画面(Svelte 5)のプレビルド dist/ に書き出されます
-npm run prebuild
-# データベース用の GAS(backend.js) と HTML Service 用の dashboard.html の作成
-# --ssid= にはスプレッドシートの ID を設定する
-gulp --pretty --ssid=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-# Google Apps Script にアップロードする
-clasp push
-# Web アプリとしてデプロイ(公開)する
-clasp deploy
+# データベース用の GAS(backend.js) の作成
+# 画面(Svelte 5)のプレビルド dist/ に書き出されます、続いて HTML Service 用の dashboard.html の作成
+# Google Apps Script にアップロードして、Web アプリとしてデプロイ(公開)する
+npm run build
 ~~~
 
 1. [GAS Web app をClaspからデプロイ](https://qiita.com/ume3003/items/cd9d05dff014952a73f8)
 2. [GoogleAppsScript(GAS)を固定URLでデプロイする方法](https://codeaid.jp/gas-deploy/) Web アプリの URL を固定してアップデート(デプロイ)する方法、なお、古いバージョンの削除は出来なくなっているので注意！
+3. [Google Apps Script (GAS)のScriptletsを使って外にあるJavaScriptやCSSを読み込む](https://codeaid.jp/gas-html/) / GASで使用する３種類のScriptlets
 
 # Svelte 5 TODO アプリケーション - Runesシステム学習用
 

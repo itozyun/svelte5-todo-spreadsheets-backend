@@ -29,4 +29,6 @@ backend.js
 dashboard.html
 
 #
+.env
+!.env.local
 MEMO.md

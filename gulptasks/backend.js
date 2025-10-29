@@ -1,19 +1,15 @@
+import {config} from 'dotenv';
 import {src, dest} from 'gulp';
 import {gulp as ClosureCompiler} from 'google-closure-compiler';
 
-let isDebug = false;
-let isPrettify = false;
-let sheetsID = '*** Replace to Spread Sheets ID ***';
+config();
 
-for(var i = 2;i < process.argv.length; ++i){
-    console.log(process.argv[i])
-  if(process.argv[i] === '--debug'){
-    isDebug = true;
-  } else if(process.argv[i] === '--pretty'){
-    isPrettify = true;
-  } else if(process.argv[i].startsWith('--ssid=')){
-    sheetsID = process.argv[i].substring(7);
-  };
+const isDebug    = process.env.DEBUG  === 'true';
+const isPrettify = process.env.PRETTY === 'true';
+const sheetsID   = process.env.SPREADSHEETS_ID;
+
+if (!sheetsID) {
+    throw '.env SPREADSHEETS_ID= is undefined!';
 };
 
 export default function(cb){
@@ -23,7 +19,7 @@ export default function(cb){
         ClosureCompiler(
             { // https://github.com/google/closure-compiler/wiki/JS-Modules
                 env               : 'CUSTOM',
-                module_resolution : 'NODE',
+                module_resolution : 'BROWSER',
                 entry_point       : 'backend/index.js', // ソースの root からのファイルパス
                 define            : [
                     'goog.DEBUG=' + isDebug,
