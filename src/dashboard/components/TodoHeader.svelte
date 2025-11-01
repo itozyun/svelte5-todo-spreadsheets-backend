@@ -39,7 +39,7 @@
       <svg height="32" viewBox="0 0 16 16" width="32" class="octicon">
         <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm9.78-2.22-5.25 5.25L3.72 8.72a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042l2.75 2.75a.75.75 0 0 0 1.06 0l5.75-5.75a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018Z"></path>
       </svg>
-      Task Manager
+      Task Manager{import.meta.env.VITE_DEPLOY_VERSION ? ' (v' + import.meta.env.VITE_DEPLOY_VERSION + ')' : ''}
     </h1>
     <button class="theme-toggle" onclick={toggleTheme} type="button">
       <svg class="sun-icon" viewBox="0 0 16 16" width="16" height="16">

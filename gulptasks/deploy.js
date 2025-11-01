@@ -1,5 +1,8 @@
+import {config} from 'dotenv';
 import {series} from 'gulp';
 import {exec} from 'child_process';
+
+config();
 
 const deployID = process.env.APPS_SCRIPT_DEPLOY_ID;
 
@@ -8,7 +11,7 @@ if (!deployID) {
 };
 
 export default series(
-    function(cb){
+    function push(cb){
         exec(
             'clasp push',
             (err, stdout, stderr) => {
@@ -18,7 +21,7 @@ export default series(
             }
         );
     },
-    function(cb){
+    function deploy(cb){
         exec(
             'clasp deploy' + ( deployID ? ' -i ' + deployID : '' ),
             (err, stdout, stderr) => {

@@ -1,8 +1,8 @@
 import {series} from 'gulp';
 import dashboard from './gulptasks/dashboard.js';
 import backend from './gulptasks/backend.js';
-import clasp from './gulptasks/clasp.js';
+import deploy from './gulptasks/deploy.js';
 
-export default series(dashboard, backend, clasp);
+export default series(dashboard, backend, deploy);
 
-export {dashboard, backend, clasp}
+export {dashboard, backend, deploy}
